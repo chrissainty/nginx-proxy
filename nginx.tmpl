@@ -189,6 +189,21 @@ server {
 }
 {{ end }}
 
+{{ if eq $https_method "redirect" }}
+server {
+	server_name www.{{ $host }};
+	listen 443 ssl http2 {{ $default_server }};
+	{{ if $enable_ipv6 }}
+	listen [::]:443 ssl http2 {{ $default_server }};
+	{{ end }}
+	access_log /var/log/nginx/access.log vhost;
+	return 301 https://$host$request_uri;
+
+	ssl_certificate /etc/nginx/certs/{{ (printf "%s.crt" $cert) }};
+	ssl_certificate_key /etc/nginx/certs/{{ (printf "%s.key" $cert) }};
+}
+{{ end }}
+
 server {
 	server_name {{ $host }};
 	listen 443 ssl http2 {{ $default_server }};
